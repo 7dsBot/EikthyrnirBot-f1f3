@@ -1,3 +1,5 @@
 *.png
+Hand/*.png
+!Skills/*.png
 __pycache__
 capture.py
