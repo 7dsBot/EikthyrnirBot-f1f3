@@ -43,7 +43,6 @@ class FloorOne:
             if step == 1:
                 hc = HandChecker()
                 hand = hc.get_hand()
-                print(hand)
                 card_colors = hc.get_colors_from_hand(hand)
                 print(card_colors)
                 pass

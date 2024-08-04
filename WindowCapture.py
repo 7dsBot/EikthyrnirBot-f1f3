@@ -15,4 +15,4 @@ class WindowCapture:
             region = {"top": top, "left": left, "width": right - left, "height": bottom - top}
         screenshot = self.sct.grab(region)
         mss.tools.to_png(screenshot.rgb, screenshot.size, output=f"{capture_name or self.window_title}.png")
-        print(f"Capture de la fenêtre '{self.window_title}' sauvegardée sous '{capture_name or self.window_title}.png'.")
+        # print(f"Capture de la fenêtre '{self.window_title}' sauvegardée sous '{capture_name or self.window_title}.png'.")

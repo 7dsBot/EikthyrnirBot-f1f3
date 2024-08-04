@@ -42,6 +42,8 @@ class HandChecker:
         # Comparer chaque région avec les cartes de compétences
         skills_folder = "Skills"
         skills = os.listdir(skills_folder)
+        # Virer ce qui n'est pas une image
+        skills = [skill for skill in skills if skill.endswith(".png")]
 
         skills_array = []
 
@@ -59,15 +61,34 @@ class HandChecker:
         return skills_array
 
     def get_colors_from_hand(self, skills_array):
-        card_colors = {}
+        card_colors = {
+            "Thor": {
+                "color": "blue",
+                "index": []
+            },
+            "Albedo": {
+                "color": "blue",
+                "index": []
+            },
+            "Jörmungand": {
+                "color": "green",
+                "index": []
+            },
+            "Freyr": {
+                "color": "red",
+                "index": []
+            }
+        }
 
         for i, skill in enumerate(skills_array):
-            if skill.startswith("Thor_") or skill.startswith("Albedo_"):
-                card_colors[i] = "blue"
+            if skill.startswith("Thor_"):
+                card_colors["Thor"]["index"].append(i)
+            elif skill.startswith("Albedo_"):
+                card_colors["Albedo"]["index"].append(i)
             elif skill.startswith("Jörmungand_"):
-                card_colors[i] = "green"
+                card_colors["Jörmungand"]["index"].append(i)
             elif skill.startswith("Freyr_"):
-                card_colors[i] = "red"
+                card_colors["Freyr"]["index"].append(i)
             else:
                 raise Exception(f"Carte non reconnue dans la main: {skill}.")
 
