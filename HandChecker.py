@@ -2,10 +2,16 @@ from WindowCapture import WindowCapture
 import numpy as np
 from PIL import Image
 import os
-
-wc = WindowCapture("7DS")
+from Card import Card, CardType
 
 class HandChecker:
+    HERO_CONFIG = {
+        "Thor": {"color": "blue", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}},
+        "Albedo": {"color": "blue", "cards": {"1": CardType.MALUS, "2": CardType.COUNTER, "Ult": CardType.ULTIMATE}},
+        "Jörmungand": {"color": "green", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}},
+        "Freyr": {"color": "red", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}}
+    }
+
     def __init__(self):
         self.regions = [
             {"top": 974, "left": 1232, "width": 50, "height": 50},
@@ -17,6 +23,28 @@ class HandChecker:
             {"top": 974, "left": 1748, "width": 50, "height": 50},
             {"top": 974, "left": 1834, "width": 50, "height": 50},
         ]
+
+    def create_card(self, hero, card_name, index):
+        if hero not in self.HERO_CONFIG:
+            raise Exception(f"Héros non reconnu: {hero}.")
+
+        hero_config = self.HERO_CONFIG[hero]
+        if card_name not in hero_config["cards"]:
+            raise Exception(f"Carte non reconnue pour {hero}: {card_name}.")
+
+        card_type = hero_config["cards"][card_name]
+        color = hero_config["color"]
+        return Card(hero, color, card_type, index)
+
+    def get_filtered_cards(self, skills_array):
+        cards = []
+
+        for i, skill in enumerate(skills_array):
+            hero, card_name = skill.split("_")
+            card = self.create_card(hero, card_name, i + 1)
+            cards.append(card)
+
+        return cards
 
     def are_images_equal(self, img1_path, img2_path):
         # Charger les images
@@ -52,6 +80,7 @@ class HandChecker:
 
     def get_hand(self):
         # Prendre une capture de chaque région de la main
+        wc = WindowCapture("7DS")
         for i, region in enumerate(self.regions):
             wc.capture(f"Hand/{i}", region)
 
@@ -76,44 +105,6 @@ class HandChecker:
 
         return skills_array
 
-    def get_sorted_cards(self, skills_array):
-        card_colors = {}
-
-        for i, skill in enumerate(skills_array):
-            card = {}
-            if skill.startswith("Thor_"):
-                card = {"type": "attack", "index": (i + 1)}
-                if "Thor" not in card_colors:
-                    card_colors["Thor"] = {"color": "blue", "cards": []}
-                card_colors["Thor"]["cards"].append(card)
-            elif skill.startswith("Albedo_"):
-                if skill == "Albedo_1":
-                    card = {"type": "malus", "index": (i + 1)}
-                elif skill == "Albedo_2":
-                    card = {"type": "counter", "index": (i + 1)}
-                else:
-                    raise Exception(f"Carte non reconnue dans la main: {skill}.")
-                if "Albedo" not in card_colors:
-                    card_colors["Albedo"] = {"color": "blue", "cards": []}
-                card_colors["Albedo"]["cards"].append(card)
-            elif skill.startswith("Jörmungand_"):
-                card = {"type": "attack", "index": (i + 1)}
-                if "Jörmungand" not in card_colors:
-                    card_colors["Jörmungand"] = {"color": "green", "cards": []}
-                card_colors["Jörmungand"]["cards"].append(card)
-            elif skill.startswith("Freyr_"):
-                card = {"type": "attack", "index": (i + 1)}
-                if "Freyr" not in card_colors:
-                    card_colors["Freyr"] = {"color": "red", "cards": []}
-                card_colors["Freyr"]["cards"].append(card)
-            else:
-                raise Exception(f"Carte non reconnue dans la main: {skill}.")
-
-        return card_colors
-
-    def print_hand(self, sorted_cards):
-        # Afficher le héros avec sa couleur, puis toutes ses cartes
-        for hero in sorted_cards:
-            print(f"{hero} ({sorted_cards[hero]['color']}):")
-            for card in sorted_cards[hero]["cards"]:
-                print(f"  - {card['type']} ({card['index']})")
+    def print_hand(self, cards):
+        for card in cards:
+            print(card)
