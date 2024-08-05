@@ -8,14 +8,14 @@ wc = WindowCapture("7DS")
 class HandChecker:
     def __init__(self):
         self.regions = [
-            {"top": 904, "left": 1272, "width": 10, "height": 120},
-            {"top": 904, "left": 1358, "width": 10, "height": 120},
-            {"top": 904, "left": 1444, "width": 10, "height": 120},
-            {"top": 904, "left": 1530, "width": 10, "height": 120},
-            {"top": 904, "left": 1616, "width": 10, "height": 120},
-            {"top": 904, "left": 1702, "width": 10, "height": 120},
-            {"top": 904, "left": 1788, "width": 10, "height": 120},
-            {"top": 904, "left": 1874, "width": 10, "height": 120},
+            {"top": 974, "left": 1232, "width": 50, "height": 50},
+            {"top": 974, "left": 1318, "width": 50, "height": 50},
+            {"top": 974, "left": 1404, "width": 50, "height": 50},
+            {"top": 974, "left": 1490, "width": 50, "height": 50},
+            {"top": 974, "left": 1576, "width": 50, "height": 50},
+            {"top": 974, "left": 1662, "width": 50, "height": 50},
+            {"top": 974, "left": 1748, "width": 50, "height": 50},
+            {"top": 974, "left": 1834, "width": 50, "height": 50},
         ]
 
     def are_images_equal(self, img1_path, img2_path):
@@ -31,8 +31,24 @@ class HandChecker:
         np_img1 = np.array(img1)
         np_img2 = np.array(img2)
 
-        # Comparer les deux tableaux
-        return np.array_equal(np_img1, np_img2)
+        # On boucle sur chaque ligne puis chaque pixel de chaque ligne, et on fait une incertitude de 10
+        good_pixels = 0
+        for i in range(np_img1.shape[0]):
+            for j in range(np_img1.shape[1]):
+                for k in range(np_img1.shape[2]):
+                    res = np_img1[i, j, k] - np_img2[i, j, k]
+                    res = abs(res)
+                    if res > 60:
+                        pass
+                    else:
+                        good_pixels += 1
+
+        # On calcule le pourcentage de pixels identiques
+        percentage = good_pixels / (np_img1.shape[0] * np_img1.shape[1] * np_img1.shape[2])
+        # if percentage > 0.5:
+        #     print(f"Pourcentage de pixels identiques: {round(percentage * 100, 2)}%")
+
+        return percentage > 0.5
 
     def get_hand(self):
         # Prendre une capture de chaque région de la main
@@ -51,45 +67,53 @@ class HandChecker:
             for skill in skills:
                 hand_str = f"Hand/{i}.png"
                 skill_str = f"{skills_folder}/{skill}"
+                # print(f"Comparing {hand_str} with {skill_str}")
                 if self.are_images_equal(hand_str, skill_str):
                     skills_array.append(skill.split(".")[0])
                     break
             else:
                 raise Exception(f"Carte non reconnue pour la région {i}.")
-                break
 
         return skills_array
 
-    def get_colors_from_hand(self, skills_array):
-        card_colors = {
-            "Thor": {
-                "color": "blue",
-                "index": []
-            },
-            "Albedo": {
-                "color": "blue",
-                "index": []
-            },
-            "Jörmungand": {
-                "color": "green",
-                "index": []
-            },
-            "Freyr": {
-                "color": "red",
-                "index": []
-            }
-        }
+    def get_sorted_cards(self, skills_array):
+        card_colors = {}
 
         for i, skill in enumerate(skills_array):
+            card = {}
             if skill.startswith("Thor_"):
-                card_colors["Thor"]["index"].append(i)
+                card = {"type": "attack", "index": (i + 1)}
+                if "Thor" not in card_colors:
+                    card_colors["Thor"] = {"color": "blue", "cards": []}
+                card_colors["Thor"]["cards"].append(card)
             elif skill.startswith("Albedo_"):
-                card_colors["Albedo"]["index"].append(i)
+                if skill == "Albedo_1":
+                    card = {"type": "malus", "index": (i + 1)}
+                elif skill == "Albedo_2":
+                    card = {"type": "counter", "index": (i + 1)}
+                else:
+                    raise Exception(f"Carte non reconnue dans la main: {skill}.")
+                if "Albedo" not in card_colors:
+                    card_colors["Albedo"] = {"color": "blue", "cards": []}
+                card_colors["Albedo"]["cards"].append(card)
             elif skill.startswith("Jörmungand_"):
-                card_colors["Jörmungand"]["index"].append(i)
+                card = {"type": "attack", "index": (i + 1)}
+                if "Jörmungand" not in card_colors:
+                    card_colors["Jörmungand"] = {"color": "green", "cards": []}
+                card_colors["Jörmungand"]["cards"].append(card)
             elif skill.startswith("Freyr_"):
-                card_colors["Freyr"]["index"].append(i)
+                card = {"type": "attack", "index": (i + 1)}
+                if "Freyr" not in card_colors:
+                    card_colors["Freyr"] = {"color": "red", "cards": []}
+                card_colors["Freyr"]["cards"].append(card)
             else:
                 raise Exception(f"Carte non reconnue dans la main: {skill}.")
 
         return card_colors
+
+    def print_hand(self, sorted_cards):
+        # Afficher le héros avec sa couleur, puis toutes ses cartes
+        for hero in sorted_cards:
+            print(f"{hero} ({sorted_cards[hero]['color']}):")
+            for card in sorted_cards[hero]["cards"]:
+                print(f"  - {card['type']} ({card['index']})")
