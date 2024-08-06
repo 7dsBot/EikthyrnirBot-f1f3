@@ -11,16 +11,17 @@ class CardType:
     ULTIMATE = "ultimate"
 
 class Card:
-    def __init__(self, hero, color, card_name, card_type, index, level):
+    def __init__(self, hero, color, card_name, card_type, index, level, sealed=False):
         self.hero = hero
         self.color = color
         self.name = card_name
         self.type = card_type
         self.index = index
         self.level = level
+        self.sealed = sealed
 
     def __str__(self):
-        return f"{self.hero} - {self.color} - {self.name} - {self.type} - {self.index} - {self.level}"
+        return f"{self.hero} ({self.color}) Card(\'name\': {self.name}, \'type\': {self.type}, \'index\': {self.index}, \'level\': {self.level}, \'sealed\': {self.sealed})"
 
     def upgrade(self):
         if self.level == CardLevel.BRONZE:
