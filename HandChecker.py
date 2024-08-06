@@ -2,7 +2,7 @@ from WindowCapture import WindowCapture
 import numpy as np
 from PIL import Image
 import os
-from Card import Card, CardType
+from Card import Card, CardLevel, CardType
 
 class HandChecker:
     HERO_CONFIG = {
@@ -11,6 +11,8 @@ class HandChecker:
         "Jörmungand": {"color": "green", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}},
         "Freyr": {"color": "red", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}}
     }
+
+    LEVEL_CONFIG = { "bronze": CardLevel.BRONZE, "silver": CardLevel.SILVER, "gold": CardLevel.GOLD, "ultimate": CardLevel.ULTIMATE }
 
     def __init__(self):
         self.regions = [
@@ -24,7 +26,9 @@ class HandChecker:
             {"top": 974, "left": 1834, "width": 50, "height": 50},
         ]
 
-    def create_card(self, hero, card_name, index):
+        self.wcap = WindowCapture("7DS")
+
+    def create_card(self, hero, card_name, card_level, index):
         if hero not in self.HERO_CONFIG:
             raise Exception(f"Héros non reconnu: {hero}.")
 
@@ -34,19 +38,19 @@ class HandChecker:
 
         card_type = hero_config["cards"][card_name]
         color = hero_config["color"]
-        return Card(hero, color, card_type, index)
+        return Card(hero, color, card_name, card_type, index, self.LEVEL_CONFIG[card_level])
 
     def get_filtered_cards(self, skills_array):
         cards = []
 
         for i, skill in enumerate(skills_array):
-            hero, card_name = skill.split("_")
-            card = self.create_card(hero, card_name, i + 1)
+            hero, card_name, card_level = skill.split("_")
+            card = self.create_card(hero, card_name, card_level, i + 1)
             cards.append(card)
 
         return cards
 
-    def are_images_equal(self, img1_path, img2_path):
+    def get_similarity_percentage(self, img1_path, img2_path):
         # Charger les images
         img1 = Image.open(img1_path)
         img2 = Image.open(img2_path)
@@ -73,16 +77,41 @@ class HandChecker:
 
         # On calcule le pourcentage de pixels identiques
         percentage = good_pixels / (np_img1.shape[0] * np_img1.shape[1] * np_img1.shape[2])
-        # if percentage > 0.5:
-        #     print(f"Pourcentage de pixels identiques: {round(percentage * 100, 2)}%")
 
-        return percentage > 0.5
+        return percentage
+
+    def get_each_skill_level(self, skills_array):
+        # Capture the entire screen
+        self.wcap.capture("Hand/Screen")
+
+        pixel_pairs = []
+        img = Image.open("Hand/Screen.png")
+
+        for i in range(0, 8):
+            pixel = (img.getpixel((1265 + i * 86, 1045)), img.getpixel((1235 + i * 86, 1020)))
+            pixel_pairs.append(pixel)
+
+        for i, pixel in enumerate(pixel_pairs):
+            bronze = abs(pixel[0][0] - 21) + abs(pixel[0][1] - 17) + abs(pixel[0][2] - 12)
+            silver = abs(pixel[0][0] - 37) + abs(pixel[0][1] - 30) + abs(pixel[0][2] - 87)
+            gold = abs(pixel[0][0] - 24) + abs(pixel[0][1] - 48) + abs(pixel[0][2] - 48)
+            ultimate = abs(pixel[1][0] - 205) + abs(pixel[1][1] - 188) + abs(pixel[1][2] - 255)
+
+            # print(f"Region {i}: bronze={bronze}, silver={silver}, gold={gold}, ultimate={ultimate}")
+
+            if bronze > 150 and silver > 150 and gold > 150 and ultimate > 150:
+                raise Exception(f"Qualité de carte non reconnue pour la région {i}.")
+
+            rarities = { "bronze": bronze, "silver": silver, "gold": gold, "ultimate": ultimate }
+            rarity = min(rarities, key=rarities.get)
+            skills_array[i] = f"{skills_array[i]}_{rarity}"
+
+        return skills_array
 
     def get_hand(self):
         # Prendre une capture de chaque région de la main
-        wc = WindowCapture("7DS")
         for i, region in enumerate(self.regions):
-            wc.capture(f"Hand/{i}", region)
+            self.wcap.capture(f"Hand/{i}", region)
 
         # Comparer chaque région avec les cartes de compétences
         skills_folder = "Skills"
@@ -93,17 +122,21 @@ class HandChecker:
         skills_array = []
 
         for i in range(len(self.regions)):
+            all_percentages = []
             for skill in skills:
                 hand_str = f"Hand/{i}.png"
                 skill_str = f"{skills_folder}/{skill}"
-                # print(f"Comparing {hand_str} with {skill_str}")
-                if self.are_images_equal(hand_str, skill_str):
-                    skills_array.append(skill.split(".")[0])
-                    break
-            else:
-                raise Exception(f"Carte non reconnue pour la région {i}.")
+                percentage = self.get_similarity_percentage(hand_str, skill_str)
+                all_percentages.append(percentage)
 
-        return skills_array
+            if max(all_percentages) < 0.5:
+                raise Exception(f"Carte non reconnue pour la région {i}.")
+            else:
+                skills_array.append(skills[all_percentages.index(max(all_percentages))].split(".")[0])
+
+        hand = self.get_each_skill_level(skills_array)
+
+        return hand
 
     def print_hand(self, cards):
         for card in cards:

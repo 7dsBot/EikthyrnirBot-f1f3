@@ -4,7 +4,7 @@ from HandChecker import HandChecker
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
 
-from time import sleep
+# from time import sleep
 
 class FloorOne:
     def __init__(self):
@@ -42,6 +42,7 @@ class FloorOne:
         color_cycle = ["red", "green", "blue"]
         needs_color_cyle = step % 2 == 0
         cards_to_play = []
+        cards_copy = cards.copy()
 
         # On répartit les cartes à jouer parmi les héros
         hero_cards = {}
@@ -143,24 +144,54 @@ class FloorOne:
 
             # On complète par une quatrième carte "attack" ou "malus" si possible
             if len(cards_to_play) < 4:
-                cards_left = [i for i in range(1, 8)]
+                cards_left = [i for i in range(1, 9)]
                 for card in cards_to_play:
                     cards_left.remove(card)
                 cards_to_play.append(cards_left[0])
 
-        # On joue les cartes
-        last_played = 0
-        while len(cards_to_play) > 0:
-            card = cards_to_play[0]
+        # On doit regarder quand on joue une carte si les index des autres sont toujours valides
+        real_cards_to_play = cards_to_play.copy()
+
+        for i, card in enumerate(cards_to_play):
+            offset = 0
+            before_prev_card, prev_card, actual_card, next_card, after_next_card = None, None, None, None, None
+            actual_card = actual_card = next((x for x in cards_copy if x.index == card), None)
+
+            print(f"Carte jouée: {actual_card}")
+
+            indexes = [actual_card.index - 2, actual_card.index - 1, actual_card.index + 1, actual_card.index + 2]
+            if indexes[0] > 0:
+                before_prev_card = next((x for x in cards_copy if x.index == indexes[0]), None)
+            if indexes[1] > 0:
+                prev_card = next((x for x in cards_copy if x.index == indexes[1]), None)
+            if indexes[2] < 9:
+                next_card = next((x for x in cards_copy if x.index == indexes[2]), None)
+            if indexes[3] < 9:
+                after_next_card = next((x for x in cards_copy if x.index == indexes[3]), None)
+
+            if prev_card != None and next_card != None and prev_card.level != 3 and prev_card.hero == next_card.hero and prev_card.name == next_card.name and prev_card.level == next_card.level:
+                print(f"FUSION")
+                offset += 1
+                if before_prev_card != None and before_prev_card.level != 3 and before_prev_card.hero == next_card.hero and before_prev_card.name == next_card.name and before_prev_card.level == next_card.level:
+                    print(f"FUSION double à gauche")
+                    offset += 1
+                elif after_next_card != None and after_next_card.level != 3 and next_card.hero == after_next_card.hero and next_card.name == after_next_card.name and next_card.level == after_next_card.level:
+                    print(f"FUSION double à droite")
+                    offset += 1
+
+            for j in range(i + 1, len(cards_to_play)):
+                if real_cards_to_play[j] < card:
+                    real_cards_to_play[j] += (1 + offset)
+
+        while len(real_cards_to_play) > 0:
+            print(f"Cartes à jouer: {real_cards_to_play}")
+            card = real_cards_to_play.pop(0)
+
+            # On clique sur la carte
             if card == 69:
                 self.wclick.click(1075, 790, 1)
             else:
-                self.wclick.click(1230 + ((card - 1) * 86), 964, 1)
-            last_played = card
-            cards_to_play.remove(card)
-            for i, card in enumerate(cards_to_play):
-                if card < last_played:
-                    cards_to_play[i] += 1
+                self.wclick.click(1230 + ((card - 1) * 86), 964, 2)
 
         # On reclique en 10, 10 pour décaler la souris
         self.wclick.click(10, 10, 0)
@@ -177,4 +208,5 @@ class FloorOne:
             cards = hc.get_filtered_cards(hand)
 
             last_color = self.play(step, cards, last_color)
-            sleep(60)
+            # sleep(60)
+            break
