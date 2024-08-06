@@ -4,7 +4,7 @@ from HandChecker import HandChecker
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
 
-# from time import sleep
+from time import sleep
 
 class FloorOne:
     def __init__(self):
@@ -20,6 +20,10 @@ class FloorOne:
 
         # TODO: Vérifier si on a assez d'endurance pour lancer le combat
         print("Étage 1 lancé.")
+
+        # Passer l'animation d'entrée
+        sleep(8)
+        self.wclick.click(960, 540, 15, 0.05, 'right')
 
     def check_step(self):
         # Prendre une capture d'écran de la fenêtre
@@ -99,6 +103,8 @@ class FloorOne:
                         cards_to_play.append(card)
                         if len(cards_to_play) == 4:
                             break
+                    if len(cards_to_play) == 4:
+                        break
 
             last_color = cards_to_play[-1].color
 
@@ -152,12 +158,11 @@ class FloorOne:
         # On doit regarder quand on joue une carte si les index des autres sont toujours valides
         real_cards_to_play = cards_to_play.copy()
 
-        for i, card in enumerate(cards_to_play):
+        for i in range(len(cards_to_play)):
+            card = real_cards_to_play[i]
             offset = 0
             before_prev_card, prev_card, actual_card, next_card, after_next_card = None, None, None, None, None
             actual_card = actual_card = next((x for x in cards_copy if x.index == card), None)
-
-            print(f"Carte jouée: {actual_card}")
 
             indexes = [actual_card.index - 2, actual_card.index - 1, actual_card.index + 1, actual_card.index + 2]
             if indexes[0] > 0:
@@ -170,13 +175,10 @@ class FloorOne:
                 after_next_card = next((x for x in cards_copy if x.index == indexes[3]), None)
 
             if prev_card != None and next_card != None and prev_card.level != 3 and prev_card.hero == next_card.hero and prev_card.name == next_card.name and prev_card.level == next_card.level:
-                print(f"FUSION")
                 offset += 1
                 if before_prev_card != None and before_prev_card.level != 3 and before_prev_card.hero == next_card.hero and before_prev_card.name == next_card.name and before_prev_card.level == next_card.level:
-                    print(f"FUSION double à gauche")
                     offset += 1
                 elif after_next_card != None and after_next_card.level != 3 and next_card.hero == after_next_card.hero and next_card.name == after_next_card.name and next_card.level == after_next_card.level:
-                    print(f"FUSION double à droite")
                     offset += 1
 
             for j in range(i + 1, len(cards_to_play)):
@@ -184,7 +186,6 @@ class FloorOne:
                     real_cards_to_play[j] += (1 + offset)
 
         while len(real_cards_to_play) > 0:
-            print(f"Cartes à jouer: {real_cards_to_play}")
             card = real_cards_to_play.pop(0)
 
             # On clique sur la carte
@@ -208,5 +209,5 @@ class FloorOne:
             cards = hc.get_filtered_cards(hand)
 
             last_color = self.play(step, cards, last_color)
-            # sleep(60)
-            break
+            sleep(40)
+            # break

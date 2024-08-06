@@ -8,7 +8,7 @@ class WindowClicker:
         self.app = Application().connect(title_re=window_title)
         self.window = self.app.window(title_re=window_title)
 
-    def click(self, x, y, cooldown=0, hold_duration=0.05):
+    def click(self, x, y, cooldown=0, hold_duration=0.05, button='left'):
         from pywinauto.mouse import press, release
         from time import sleep
 
@@ -17,9 +17,9 @@ class WindowClicker:
         rect = self.window.rectangle()
         abs_x, abs_y = rect.left + x, rect.top + y
 
-        press(button='left', coords=(abs_x, abs_y))
+        press(button=button, coords=(abs_x, abs_y))
         sleep(hold_duration)
-        release(button='left', coords=(abs_x, abs_y))
+        release(button=button, coords=(abs_x, abs_y))
 
         if cooldown:
             sleep(cooldown)
