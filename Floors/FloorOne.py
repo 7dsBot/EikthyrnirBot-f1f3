@@ -39,8 +39,12 @@ class FloorOne:
             return 3
         elif cc.check_pixel_color(115, 70, (110, 0, 48), 10):
             return 4
-        else:
-            raise Exception("Étape non reconnue.")
+
+        sleep(5)
+        if cc.check_pixel_color(1000, 1000, (76, 164, 124), 10):
+            return 69
+
+        raise Exception("Étape non reconnue.")
 
     def play(self, step, cards, last_color="blue"):
         color_cycle = ["red", "green", "blue"]
@@ -182,8 +186,15 @@ class FloorOne:
                     offset += 1
 
             for j in range(i + 1, len(cards_to_play)):
-                if real_cards_to_play[j] < card:
+                if real_cards_to_play[j] <= card:
                     real_cards_to_play[j] += (1 + offset)
+
+            # Remove from cards_copy
+            cards_copy.remove(actual_card)
+
+            # Reset all indexes in cards_copy
+            for k in range(len(cards_copy)):
+                cards_copy[k].index = k + 1 + (8 - len(cards_copy))
 
         while len(real_cards_to_play) > 0:
             card = real_cards_to_play.pop(0)
@@ -201,8 +212,12 @@ class FloorOne:
 
     def run(self):
         last_color = "blue"
+
         while True:
             step = self.check_step()
+
+            if step == 69:
+                break
 
             hc = HandChecker()
             hand = hc.get_hand()
@@ -210,4 +225,6 @@ class FloorOne:
 
             last_color = self.play(step, cards, last_color)
             sleep(40)
-            # break
+
+        self.wclick.click(1000, 1000, 1)
+        sleep(10)
