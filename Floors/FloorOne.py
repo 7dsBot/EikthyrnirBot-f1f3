@@ -164,6 +164,10 @@ class FloorOne:
 
         for i in range(len(cards_to_play)):
             card = real_cards_to_play[i]
+
+            if card == 69:
+                continue
+
             offset = 0
             before_prev_card, prev_card, actual_card, next_card, after_next_card = None, None, None, None, None
             actual_card = actual_card = next((x for x in cards_copy if x.index == card), None)
