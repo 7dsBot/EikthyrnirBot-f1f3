@@ -1,7 +1,7 @@
 from WindowCapture import WindowCapture
-import numpy as np
 from PIL import Image
 import os
+from ImageManager import ImageManager
 from Card import Card, CardLevel, CardType
 
 class HandChecker:
@@ -23,18 +23,9 @@ class HandChecker:
         "ultimate_sealed": CardLevel.ULTIMATE
     }
 
-    def __init__(self):
-        self.regions = [
-            {"top": 974, "left": 1232, "width": 50, "height": 50},
-            {"top": 974, "left": 1318, "width": 50, "height": 50},
-            {"top": 974, "left": 1404, "width": 50, "height": 50},
-            {"top": 974, "left": 1490, "width": 50, "height": 50},
-            {"top": 974, "left": 1576, "width": 50, "height": 50},
-            {"top": 974, "left": 1662, "width": 50, "height": 50},
-            {"top": 974, "left": 1748, "width": 50, "height": 50},
-            {"top": 974, "left": 1834, "width": 50, "height": 50},
-        ]
+    REGIONS = [{"top": 974, "left": 1232 + i * 86, "width": 50, "height": 50} for i in range(8)]
 
+    def __init__(self):
         self.wcap = WindowCapture("7DS")
 
     def create_card(self, hero, card_name, card_level, sealed, index):
@@ -67,36 +58,6 @@ class HandChecker:
 
         return cards
 
-    def get_similarity_percentage(self, img1_path, img2_path):
-        # Charger les images
-        img1 = Image.open(img1_path)
-        img2 = Image.open(img2_path)
-
-        # Vérifier si les tailles des images sont différentes
-        if img1.size != img2.size:
-            return False
-
-        # Convertir les images en tableaux numpy pour une comparaison efficace
-        np_img1 = np.array(img1)
-        np_img2 = np.array(img2)
-
-        # On boucle sur chaque ligne puis chaque pixel de chaque ligne, et on fait une incertitude de 10
-        good_pixels = 0
-        for i in range(np_img1.shape[0]):
-            for j in range(np_img1.shape[1]):
-                for k in range(np_img1.shape[2]):
-                    res = np_img1[i, j, k] - np_img2[i, j, k]
-                    res = abs(res)
-                    if res > 30:
-                        pass
-                    else:
-                        good_pixels += 1
-
-        # On calcule le pourcentage de pixels identiques
-        percentage = good_pixels / (np_img1.shape[0] * np_img1.shape[1] * np_img1.shape[2])
-
-        return percentage
-
     def get_each_skill_level(self, skills_array):
         # Capture the entire screen
         self.wcap.capture("Hand/Screen")
@@ -121,9 +82,6 @@ class HandChecker:
             ultimate = abs(pixel[1][0] - 175) + abs(pixel[1][1] - 176) + abs(pixel[1][2] - 229)
             ultimate_sealed = abs(pixel[1][0] - 75) + abs(pixel[1][1] - 76) + abs(pixel[1][2] - 98)
 
-            # print(f"Region {i}: bronze={bronze}, silver={silver}, gold={gold}, ultimate={ultimate}")
-            # print(f"Sealed region {i}: bronze_sealed={bronze_sealed}, silver_sealed={silver_sealed}, gold_sealed={gold_sealed}, ultimate_sealed={ultimate_sealed}")
-
             rarities = {
                 "bronze": bronze,
                 "silver": silver,
@@ -138,8 +96,6 @@ class HandChecker:
             if all(value > 150 for value in rarities.values()):
                 raise Exception(f"Qualité de carte non reconnue pour la région {i}.")
 
-            # print(f"Valeurs enregistrées pour la région {i}: {rarities}")
-
             rarity = min(rarities, key=rarities.get)
             skills_array[i] = f"{skills_array[i]}_{rarity.split('_')[0]}"
 
@@ -147,7 +103,7 @@ class HandChecker:
 
     def get_hand(self):
         # Prendre une capture de chaque région de la main
-        for i, region in enumerate(self.regions):
+        for i, region in enumerate(self.REGIONS):
             self.wcap.capture(f"Hand/{i}", region)
 
         # Comparer chaque région avec les cartes de compétences
@@ -157,25 +113,20 @@ class HandChecker:
         skills = [skill for skill in skills if skill.endswith(".png")]
 
         skills_array = []
+        im = ImageManager()
 
-        for i in range(len(self.regions)):
+        for i in range(len(self.REGIONS)):
             all_percentages = []
             for skill in skills:
                 hand_str = f"Hand/{i}.png"
                 skill_str = f"{skills_folder}/{skill}"
-                percentage = self.get_similarity_percentage(hand_str, skill_str)
+                percentage = im.get_similarity_percentage(hand_str, skill_str)
                 all_percentages.append(round(percentage * 100, 2))
-
-            # print(f"Pour la région {i}, les pourcentages sont: {all_percentages}")
 
             highest_percentage = max(all_percentages)
             highest_percentage_index = all_percentages.index(highest_percentage)
             corresponding_skill = skills[highest_percentage_index]
             skill_name = corresponding_skill.split(".")[0]
-
-            # print(f"Pour la région {i}, la compétence reconnue est: {skill_name} avec un pourcentage de {highest_percentage}%")
-            # print(f"La deuxième compétence la plus probable est: {skills[all_percentages.index(sorted(all_percentages, reverse=True)[1])]} avec un pourcentage de {sorted(all_percentages, reverse=True)[1]}%")
-            # print(f"La moyenne des autres pourcentages est de: {round(sum(all_percentages) / len(all_percentages), 2)}%")
 
             skills_array.append(skill_name)
 
