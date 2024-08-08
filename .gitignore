@@ -3,3 +3,6 @@ Hand/*.png
 !Skills/*.png
 __pycache__
 capture.py
+dist/
+build/
+*.spec
