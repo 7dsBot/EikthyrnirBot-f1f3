@@ -19,8 +19,6 @@ class DeerBot:
         # Cliquer sur le bouton "OK"
         self.wclick.click(1060, 700, 2)
 
-        # Prendre une capture d'écran de la fenêtre
-        self.wcap.capture("team_set")
         print("Équipe définie.")
 
     def do_floor_one(self):
