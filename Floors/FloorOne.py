@@ -113,8 +113,6 @@ class FloorOne:
             last_color = cards_to_play[-1].color
 
             cards_to_play = [card.index for card in cards_to_play]
-            if len(cards_to_play) == 3:
-                cards_to_play.append(69)
 
         else:
             # On regarde si au minimum trois héros peuvent jouer une carte "attack" ou "malus"
@@ -158,6 +156,9 @@ class FloorOne:
                 for card in cards_to_play:
                     cards_left.remove(card)
                 cards_to_play.append(cards_left[0])
+
+        while len(cards_to_play) < 4:
+            cards_to_play.append(69)
 
         # On doit regarder quand on joue une carte si les index des autres sont toujours valides
         real_cards_to_play = cards_to_play.copy()
