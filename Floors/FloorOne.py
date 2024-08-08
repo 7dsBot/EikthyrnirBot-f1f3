@@ -1,5 +1,4 @@
 from Card import CardType
-from ColorChecker import ColorChecker
 from HandChecker import HandChecker
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
@@ -26,22 +25,23 @@ class FloorOne:
         self.wclick.click(960, 540, 15, 0.05, 'right')
 
     def check_step(self):
-        # Prendre une capture d'écran de la fenêtre
-        self.wcap.capture("f1_step")
+        PHASE_1 = (5, 101, 34)
+        PHASE_2 = (22, 59, 110)
+        PHASE_3 = (64, 4, 90)
+        PHASE_4 = (110, 0, 48)
+        END = (76, 164, 124)
 
-        # Regarder la couleur correspondant à l'étape
-        cc = ColorChecker("f1_step.png")
-        if cc.check_pixel_color(115, 70, (5, 101, 34), 10):
+        if self.wcap.check_pixel_color(115, 70, PHASE_1, 10):
             return 1
-        elif cc.check_pixel_color(115, 70, (22, 59, 110), 10):
+        elif self.wcap.check_pixel_color(115, 70, PHASE_2, 10):
             return 2
-        elif cc.check_pixel_color(115, 70, (64, 4, 90), 10):
+        elif self.wcap.check_pixel_color(115, 70, PHASE_3, 10):
             return 3
-        elif cc.check_pixel_color(115, 70, (110, 0, 48), 10):
+        elif self.wcap.check_pixel_color(115, 70, PHASE_4, 10):
             return 4
 
         sleep(5)
-        if cc.check_pixel_color(1000, 1000, (76, 164, 124), 10):
+        if self.wcap.check_pixel_color(1000, 1000, END, 10):
             return 69
 
         raise Exception("Étape non reconnue.")
