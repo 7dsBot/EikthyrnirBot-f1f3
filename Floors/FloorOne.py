@@ -1,6 +1,6 @@
 from Card import CardType
 from Floors.CardOrderer import CardOrderer
-from HandChecker import HandChecker
+from Hand.Hand import Hand
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
 
@@ -197,9 +197,8 @@ class FloorOne:
             if step == 69:
                 break
 
-            hc = HandChecker()
-            hand = hc.get_hand()
-            cards = hc.get_filtered_cards(hand)
+            hand = Hand()
+            cards = hand.get_cards()
 
             last_color = self.play(step, cards, last_color)
             sleep(40)
