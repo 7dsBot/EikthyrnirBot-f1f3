@@ -1,56 +1,18 @@
 from Card import CardType
-from Floors.CardOrderer import CardOrderer
-from Hand.Hand import Hand
-from WindowCapture import WindowCapture
-from WindowClicker import WindowClicker
+from Floors.Floor import Floor
 
-from time import sleep
-
-class FloorOne:
+class FloorOne(Floor):
     def __init__(self):
-        self.wcap = WindowCapture("7DS")
-        self.wclick = WindowClicker("7DS")
+        super().__init__()
 
     def enter_level(self):
-        # Cliquer sur l'étage 1
-        self.wclick.click(970, 775, 1)
-
-        # Cliquer sur le bouton "En avant !"
-        self.wclick.click(960, 1020, 1)
-
-        # TODO: Vérifier si on a assez d'endurance pour lancer le combat
-        print("Étage 1 lancé.")
-
-        # Passer l'animation d'entrée
-        sleep(8)
-        self.wclick.click(960, 540, 15, 0.05, 'right')
+        super().enter_level((970, 775), 1)
 
     def check_step(self):
-        PHASE_1 = (5, 101, 34)
-        PHASE_2 = (22, 59, 110)
-        PHASE_3 = (64, 4, 90)
-        PHASE_4 = (110, 0, 48)
-        PHASES = [PHASE_1, PHASE_2, PHASE_3, PHASE_4]
-
-        END = (76, 164, 124)
-
-        for i, phase in enumerate(PHASES):
-            if self.wcap.check_pixel_color(115, 70, phase, 10):
-                return i + 1
-
-        sleep(5)
-        if self.wcap.check_pixel_color(1000, 1000, END, 10):
-            return 69
-
-        raise Exception("Étape non reconnue.")
+        return super().check_step()
 
     def filter_cards_by_hero(self, cards):
-        hero_cards = {}
-        for card in cards:
-            if card.hero not in hero_cards:
-                hero_cards[card.hero] = []
-            hero_cards[card.hero].append(card)
-        return hero_cards
+        return super().filter_cards_by_hero(cards)
 
     def get_cards_to_play(self, hero_cards, last_color, step):
         color_cycle = ["red", "green", "blue"]
@@ -160,48 +122,11 @@ class FloorOne:
 
         return cards_to_play, last_color
 
-    def play_turn(self, cards_to_play):
-        while len(cards_to_play) > 0:
-            card = cards_to_play.pop(0)
-
-            # On clique sur la carte
-            if card == 69:
-                self.wclick.click(1075, 790, 1)
-            else:
-                self.wclick.click(1230 + ((card - 1) * 86), 964, 2)
-
-        # On reclique en 10, 10 pour décaler la souris
-        self.wclick.click(10, 10, 0)
+    def play_turn(self, cards):
+        super().play_turn(cards)
 
     def play(self, step, cards, last_color="blue"):
-        # On répartit les cartes à jouer parmi les héros
-        hero_cards = self.filter_cards_by_hero(cards)
-
-        # On récupère les cartes qu'on va jouer ce tour ainsi que la couleur de la dernière carte jouée si besoin
-        cards_to_play, last_color = self.get_cards_to_play(hero_cards, last_color, step)
-
-        # On doit regarder quand on joue une carte si les index des autres sont toujours valides
-        cards_to_play = CardOrderer(cards_to_play, cards).order_card_indexes()
-
-        # On joue le tour
-        self.play_turn(cards_to_play)
-
-        return last_color
+        return super().play(step, cards, last_color)
 
     def run(self):
-        last_color = "blue"
-
-        while True:
-            step = self.check_step()
-
-            if step == 69:
-                break
-
-            hand = Hand()
-            cards = hand.get_cards()
-
-            last_color = self.play(step, cards, last_color)
-            sleep(40)
-
-        self.wclick.click(1000, 1000, 1)
-        sleep(10)
+        super().run()
