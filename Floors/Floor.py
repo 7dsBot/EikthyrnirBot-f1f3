@@ -82,10 +82,13 @@ class Floor:
         return last_color
 
     def run(self):
-        last_color = "blue"
+        last_color = None
+        step, last_step = 0, 0
 
         while True:
             step = self.check_step()
+            if step != last_step:
+                last_color = None
 
             if step == 69:
                 break

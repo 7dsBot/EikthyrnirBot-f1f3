@@ -19,3 +19,5 @@ LEVEL_CONFIG = {
 }
 
 CARD_REGIONS = [{"top": 974, "left": 1232 + i * 86, "width": 50, "height": 50} for i in range(8)]
+
+COLOR_CYCLE = [ "blue", "red", "green" ]
