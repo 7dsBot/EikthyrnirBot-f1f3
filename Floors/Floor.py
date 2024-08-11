@@ -12,19 +12,20 @@ class Floor:
         self.wclick = WindowClicker("7DS")
 
     def enter_level(self, level_coords, level_nb=1):
-        # Cliquer sur l'étage
-        self.wclick.click(level_coords[0], level_coords[1], 1)
+        self.wclick.click(*level_coords, 1)
 
-        # Cliquer sur le bouton "En avant !"
-        self.wclick.click(960, 1020, 1)
+        LAUNCH = 960, 1020
+        self.wclick.click(*LAUNCH, 1)
 
-        # TODO: Vérifier si on a assez d'endurance pour lancer le combat
+        USE_POTION = 960, 800
+        self.wclick.click(*USE_POTION, 1)
+
+        self.wclick.click(*LAUNCH, 8)
 
         print(f"Entrée dans l'étage {level_nb}.")
 
-        # Passer l'animation d'entrée
-        sleep(8)
-        self.wclick.click(960, 540, 15, 0.05, 'right')
+        SKIP = 960, 540
+        self.wclick.click(*SKIP, 20)
 
     def check_step(self):
         PHASE_1 = (5, 101, 34)
@@ -66,12 +67,12 @@ class Floor:
         # On reclique en 10, 10 pour décaler la souris
         self.wclick.click(10, 10, 0)
 
-    def play(self, step, cards, last_color="blue"):
+    def play(self, step, cards, last_color, turn):
         # On répartit les cartes à jouer parmi les héros
         hero_cards = self.filter_cards_by_hero(cards)
 
         # On récupère les cartes qu'on va jouer ce tour ainsi que la couleur de la dernière carte jouée si besoin
-        cards_to_play, last_color = self.get_cards_to_play(hero_cards, last_color, step)
+        cards_to_play, last_color = self.get_cards_to_play(hero_cards, last_color, step, turn)
 
         # On doit regarder quand on joue une carte si les index des autres sont toujours valides
         cards_to_play = CardOrderer(cards_to_play, cards).order_card_indexes()
@@ -84,11 +85,13 @@ class Floor:
     def run(self):
         last_color = None
         step, last_step = 0, 0
+        turn = 1
 
         while True:
             step = self.check_step()
             if step != last_step:
                 last_color = None
+                turn = 1
 
             if step == 69:
                 break
@@ -96,7 +99,9 @@ class Floor:
             hand = Hand()
             cards = hand.get_cards()
 
-            last_color = self.play(step, cards, last_color)
+            last_color = self.play(step, cards, last_color, turn)
+            last_step = step
+            turn += 1
             sleep(40)
 
         self.wclick.click(1000, 1000, 1)

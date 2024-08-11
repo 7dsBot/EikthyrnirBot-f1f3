@@ -1,8 +1,7 @@
 from Floors.FloorOne import FloorOne
+from Floors.FloorTwo import FloorTwo
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
-
-from time import sleep
 
 class DeerBot:
     def __init__(self):
@@ -10,16 +9,25 @@ class DeerBot:
         self.wclick = WindowClicker("7DS")
 
     def define_team(self):
-        # Cliquer sur le bouton "Définir l'équipe"
-        self.wclick.click(964, 1042, 2)
+        DEFINE_TEAM_BUTTON = (964, 1042)
+        self.wclick.click(*DEFINE_TEAM_BUTTON, 3)
 
-        # Cliquer sur le bouton "Enregistrer"
-        self.wclick.click(960, 910, 2)
+        SAVE_BUTTON = (960, 910)
+        self.wclick.click(*SAVE_BUTTON, 3)
 
-        # Cliquer sur le bouton "OK"
-        self.wclick.click(1060, 700, 2)
+        OK_BUTTON = (1060, 700)
+        self.wclick.click(*OK_BUTTON, 3)
 
         print("Équipe définie.")
+
+    def reset(self):
+        RESET_TEAM_BUTTON = (960, 1040)
+        self.wclick.click(*RESET_TEAM_BUTTON, 3)
+
+        OK_BUTTON = (1060, 630)
+        self.wclick.click(*OK_BUTTON, 3)
+
+        print("Équipe réinitialisée.")
 
     def do_floor_one(self):
         floor_one = FloorOne()
@@ -27,8 +35,15 @@ class DeerBot:
 
         floor_one.run()
 
-    def run(self):
-        self.define_team()
-        sleep(5)
+    def do_floor_two(self):
+        floor_two = FloorTwo()
+        floor_two.enter_level()
 
-        self.do_floor_one()
+        floor_two.run()
+
+    def run(self):
+        while True:
+            self.define_team()
+            self.do_floor_one()
+            self.do_floor_two()
+            self.reset()

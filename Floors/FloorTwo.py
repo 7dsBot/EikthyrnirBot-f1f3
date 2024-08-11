@@ -5,7 +5,7 @@ from constants import COLOR_CYCLE
 
 class TurnPlayer:
     @staticmethod
-    def get_cards_to_play(hero_cards, last_color, step):
+    def get_cards_to_play(hero_cards, last_color, step, turn):
         steps = {
             1: TurnPlayer.step_1,
             2: TurnPlayer.step_2,
@@ -16,12 +16,10 @@ class TurnPlayer:
         if step not in steps:
             raise Exception("Étape non reconnue.")
 
-        return steps[step](hero_cards, last_color)
+        return steps[step](hero_cards, last_color, turn)
 
     @staticmethod
-    def step_1(hero_cards, last_color):
-        print("Step 1")
-
+    def step_1(hero_cards, last_color, turn):
         cards_to_play = []
 
         if TurnPlayer._can_three_different_heroes_play(hero_cards):
@@ -36,15 +34,13 @@ class TurnPlayer:
         return cards_to_play, last_color
 
     @staticmethod
-    def step_2(hero_cards, last_color):
-        print("Step 2")
-
+    def step_2(hero_cards, last_color, turn):
         cards_to_play = []
 
         if TurnPlayer._are_there_three_colors_to_play(hero_cards):
             cards_to_play = TurnPlayer._play_priority_cards(hero_cards, check_color=True)
             cards_to_play = TurnPlayer._respect_color_cycle(cards_to_play, last_color)
-            cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 2)
+            cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 2, turn)
             last_color = cards_to_play[-1].color
         else:
             cards_to_play = TurnPlayer._play_last_four_cards()
@@ -56,9 +52,7 @@ class TurnPlayer:
         return cards_to_play, last_color
 
     @staticmethod
-    def step_3(hero_cards, last_color):
-        print("Step 3")
-
+    def step_3(hero_cards, last_color, turn):
         cards_to_play = []
 
         if TurnPlayer._can_three_different_heroes_play(hero_cards):
@@ -73,15 +67,13 @@ class TurnPlayer:
         return cards_to_play, last_color
 
     @staticmethod
-    def step_4(hero_cards, last_color):
-        print("Step 4")
-
+    def step_4(hero_cards, last_color, turn):
         cards_to_play = []
 
         if TurnPlayer._are_there_three_colors_to_play(hero_cards):
             cards_to_play = TurnPlayer._play_priority_cards(hero_cards, check_color=True)
             cards_to_play = TurnPlayer._respect_color_cycle(cards_to_play, last_color)
-            cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 4)
+            cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 4, turn)
             last_color = cards_to_play[-1].color
         else:
             cards_to_play = TurnPlayer._play_last_four_cards()
@@ -102,17 +94,26 @@ class TurnPlayer:
         return cards_to_play
 
     @staticmethod
-    def _complete_color_cycle(hero_cards, cards_to_play, step):
+    def _complete_color_cycle(hero_cards, cards_to_play, step, turn):
         if len(cards_to_play) < 4:
             next_color = COLOR_CYCLE[(COLOR_CYCLE.index(cards_to_play[-1].color) + 1) % 3]
 
-            for _, cards in hero_cards.items():
-                for card in cards:
-                    if (card.color == next_color and card not in cards_to_play) or (card.type == CardType.COUNTER and step != 2):
-                        cards_to_play.append(card)
+            if turn % 2 == 1:
+                for _, cards in hero_cards.items():
+                    for card in cards:
+                        if (card.color == next_color and card not in cards_to_play) or (card.type == CardType.COUNTER and step != 2):
+                            cards_to_play.append(card)
+                            break
+                    if len(cards_to_play) == 4:
                         break
-                if len(cards_to_play) == 4:
-                    break
+            else:
+                for _, cards in hero_cards.items():
+                    for card in cards:
+                        if (card.color != next_color and card not in cards_to_play) or (card.type == CardType.COUNTER and step != 2):
+                            cards_to_play.append(card)
+                            break
+                    if len(cards_to_play) == 4:
+                        break
 
         return cards_to_play
 
@@ -223,12 +224,12 @@ class TurnPlayer:
 
         return cards_to_play
 
-class FloorOne(Floor):
+class FloorTwo(Floor):
     def __init__(self):
         super().__init__()
 
     def enter_level(self):
-        super().enter_level((970, 775), 1)
+        super().enter_level((970, 600), 2)
 
     def check_step(self):
         return super().check_step()
@@ -237,7 +238,7 @@ class FloorOne(Floor):
         return super().filter_cards_by_hero(cards)
 
     def get_cards_to_play(self, hero_cards, last_color, step, turn):
-        return TurnPlayer.get_cards_to_play(hero_cards, last_color, step)
+        return TurnPlayer.get_cards_to_play(hero_cards, last_color, step, turn)
 
     def play_turn(self, cards):
         super().play_turn(cards)
