@@ -20,12 +20,8 @@ class Floor:
         USE_POTION = 960, 800
         self.wclick.click(*USE_POTION, 1)
 
-        self.wclick.click(*LAUNCH, 8)
-
-        print(f"Entrée dans l'étage {level_nb}.")
-
-        SKIP = 960, 540
-        self.wclick.click(*SKIP, 20)
+        # print(f"Entrée dans l'étage {level_nb}.")
+        self.wclick.click(*LAUNCH, 30)
 
     def check_step(self):
         PHASE_1 = (5, 101, 34)
@@ -60,12 +56,13 @@ class Floor:
 
             # On clique sur la carte
             if card == 69:
-                self.wclick.click(1075, 790, 1)
+                x = 850 + (75 * (4 - (len(cards) + 1)))
+                self.wclick.click(x, 790, 1, False)
             else:
                 self.wclick.click(1230 + ((card - 1) * 86), 964, 2)
 
-        # On reclique en 10, 10 pour décaler la souris
-        self.wclick.click(10, 10, 0)
+        # On reclique en 1180, 820 pour "reset" si 4 cartes n'ont pas été jouées
+        self.wclick.click(1180, 820, 1)
 
     def play(self, step, cards, last_color, turn):
         # On répartit les cartes à jouer parmi les héros

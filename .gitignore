@@ -6,3 +6,4 @@ capture.py
 dist/
 build/
 *.spec
+.env

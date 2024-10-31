@@ -25,8 +25,8 @@ class HandChecker:
         attributes = skill.split("_")
         hero = attributes[0]
         card_name = attributes[1]
+        card_level = attributes[2]
         sealed = len(attributes) == 4
-        card_level = attributes[-1]
 
         card_creator = CardCreator(hero, card_name, card_level, sealed, index)
         return card_creator.create_card()
@@ -38,7 +38,7 @@ class HandChecker:
         hand_rarities = self._check_hand_rarity()
 
         for i in range(len(skills_array)):
-            skills_array[i] = f"{skills_array[i]}_{hand_rarities[i]}"
+            skills_array[i] = f"{skills_array[i].strip('_sealed')}_{hand_rarities[i]}"
 
         return skills_array
 

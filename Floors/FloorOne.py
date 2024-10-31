@@ -20,8 +20,6 @@ class TurnPlayer:
 
     @staticmethod
     def step_1(hero_cards, last_color):
-        print("Step 1")
-
         cards_to_play = []
 
         if TurnPlayer._can_three_different_heroes_play(hero_cards):
@@ -37,8 +35,6 @@ class TurnPlayer:
 
     @staticmethod
     def step_2(hero_cards, last_color):
-        print("Step 2")
-
         cards_to_play = []
 
         if TurnPlayer._are_there_three_colors_to_play(hero_cards):
@@ -57,8 +53,6 @@ class TurnPlayer:
 
     @staticmethod
     def step_3(hero_cards, last_color):
-        print("Step 3")
-
         cards_to_play = []
 
         if TurnPlayer._can_three_different_heroes_play(hero_cards):
@@ -74,8 +68,6 @@ class TurnPlayer:
 
     @staticmethod
     def step_4(hero_cards, last_color):
-        print("Step 4")
-
         cards_to_play = []
 
         if TurnPlayer._are_there_three_colors_to_play(hero_cards):
