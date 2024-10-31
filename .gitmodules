@@ -1,0 +1,3 @@
+[submodule "Hand"]
+	path = Hand
+	url = git@github.com:7dsBot/Hand.git
