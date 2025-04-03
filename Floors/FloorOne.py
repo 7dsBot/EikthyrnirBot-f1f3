@@ -20,34 +20,13 @@ class TurnPlayer:
 
     @staticmethod
     def step_1(hero_cards, last_color):
-        cards_to_play = []
-
-        if TurnPlayer._can_three_different_heroes_play(hero_cards):
-            cards_to_play = TurnPlayer._play_priority_cards(hero_cards, check_color=False)
-            cards_to_play = TurnPlayer._add_missing_cards(hero_cards, cards_to_play)
-        else:
-            cards_to_play = TurnPlayer._play_last_four_cards()
-
-        cards_to_play = TurnPlayer._eventually_play_fourth_card(cards_to_play)
-        cards_to_play = TurnPlayer._ensure_four_cards_are_played(cards_to_play)
+        cards_to_play = [7, 5, 3, 1]
 
         return cards_to_play, last_color
 
     @staticmethod
     def step_2(hero_cards, last_color):
-        cards_to_play = []
-
-        if TurnPlayer._are_there_three_colors_to_play(hero_cards):
-            cards_to_play = TurnPlayer._play_priority_cards(hero_cards, check_color=True)
-            cards_to_play = TurnPlayer._respect_color_cycle(cards_to_play, last_color)
-            cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 2)
-            last_color = cards_to_play[-1].color
-        else:
-            cards_to_play = TurnPlayer._play_last_four_cards()
-            last_color = None
-
-        cards_to_play = TurnPlayer._get_index_array(cards_to_play)
-        cards_to_play = TurnPlayer._ensure_four_cards_are_played(cards_to_play)
+        cards_to_play = [2, 3, 1, 4]
 
         return cards_to_play, last_color
 
