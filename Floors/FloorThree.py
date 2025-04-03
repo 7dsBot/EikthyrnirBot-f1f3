@@ -228,13 +228,16 @@ class TurnPlayer:
 
         blue_cards_other_than_counter, red_cards_other_than_counter, green_cards_other_than_counter = [], [], []
         if hero_cards.get("Thor", []):
-            blue_cards_other_than_counter = [x for x in hero_cards["Thor"] if x.type in ["attack", "malus", "ultimate"] and x.color == "blue"]
+            blue_cards_other_than_counter = [x for x in hero_cards["Thor"]]
         if hero_cards.get("Albedo", []):
-            blue_cards_other_than_counter += [x for x in hero_cards["Albedo"] if x.type in ["attack", "malus", "ultimate"] and x.color == "blue"]
+            if TurnPlayer._have_more_than_one_counter(hero_cards):
+                blue_cards_other_than_counter = [x for x in hero_cards["Albedo"]]
+            else:
+                blue_cards_other_than_counter += [x for x in hero_cards["Albedo"] if x.type in ["attack", "malus", "ultimate"]]
         if hero_cards.get("Freyr", []):
-            red_cards_other_than_counter = [x for x in hero_cards["Freyr"] if x.type in ["attack", "malus", "ultimate"] and x.color == "red"]
+            red_cards_other_than_counter = [x for x in hero_cards["Freyr"]]
         if hero_cards.get("Jörmungand", []):
-            green_cards_other_than_counter = [x for x in hero_cards["Jörmungand"] if x.type in ["attack", "malus", "ultimate"] and x.color == "green"]
+            green_cards_other_than_counter = [x for x in hero_cards["Jörmungand"]]
 
         len_bcotc = len(blue_cards_other_than_counter)
         len_rcotc = len(red_cards_other_than_counter)
@@ -242,18 +245,27 @@ class TurnPlayer:
 
         for _, cards in hero_cards.items():
             for card in cards:
-                if card.color == "blue" and ((card.type in ["attack", "malus", "ultimate"]) or TurnPlayer._have_more_than_one_counter(hero_cards)) and len_bcotc >= 2 and card not in cards_to_play:
-                    cards_to_play.append(card)
-                    len_bcotc -= 1
-                    continue
-                if card.color == "red" and card.type in ["attack", "malus", "ultimate"] and len_rcotc >= 2 and card not in cards_to_play:
-                    cards_to_play.append(card)
-                    len_rcotc -= 1
-                    continue
-                if card.color == "green" and card.type in ["attack", "malus", "ultimate"] and len_gcotc >= 2 and card not in cards_to_play:
-                    cards_to_play.append(card)
-                    len_gcotc -= 1
-                    continue
+                if card.color == "blue":
+                    if TurnPlayer._have_more_than_one_counter(hero_cards):
+                        if len_bcotc >= 2 and card not in cards_to_play:
+                            cards_to_play.append(card)
+                            len_bcotc -= 1
+                            continue
+                    else:
+                        if card.type in ["attack", "malus", "ultimate"] and len_bcotc >= 2 and card not in cards_to_play:
+                            cards_to_play.append(card)
+                            len_bcotc -= 1
+                            continue
+                if card.color == "red":
+                    if len_rcotc >= 2 and card not in cards_to_play:
+                        cards_to_play.append(card)
+                        len_rcotc -= 1
+                        continue
+                if card.color == "green":
+                    if len_gcotc >= 2 and card not in cards_to_play:
+                        cards_to_play.append(card)
+                        len_gcotc -= 1
+                        continue
             if len(cards_to_play) >= 4:
                 break
 

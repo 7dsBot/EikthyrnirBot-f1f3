@@ -1,11 +1,4 @@
-from dotenv import load_dotenv
-from os import getenv
-
 from Card import CardLevel, CardType
-
-load_dotenv()
-AHK_EXE_LOCATION = getenv("AHK_EXE_LOCATION")
-AHK_SCRIPT_LOCATION = getenv("AHK_SCRIPT_LOCATION")
 
 HERO_CONFIG = {
     "Thor": {"color": "blue", "cards": {"1": CardType.ATTACK, "2": CardType.ATTACK, "Ult": CardType.ULTIMATE}},

@@ -225,7 +225,7 @@ class FloorTwo(Floor):
         super().__init__()
 
     def enter_level(self):
-        super().enter_level((970, 600), 2)
+        super().enter_level((970, 700), 2)
 
     def check_step(self):
         return super().check_step()
