@@ -1,5 +1,6 @@
 from Floors.FloorOne import FloorOne
 from Floors.FloorTwo import FloorTwo
+from Floors.FloorThree import FloorThree
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
 
@@ -15,13 +16,13 @@ class DeerBot:
         self.wclick.click(*SAVE_BUTTON, 3)
         self.wclick.click(*SAVE_OK_BUTTON, 3)
 
-        # print("Équipe définie.")
+        print("Équipe définie.")
 
     def reset(self):
         self.wclick.click(*RESET_TEAM_BUTTON, 3)
         self.wclick.click(*RESET_OK_BUTTON, 3)
 
-        # print("Équipe réinitialisée.")
+        print("Équipe réinitialisée.")
 
     def do_floor_one(self):
         floor_one = FloorOne()
@@ -29,18 +30,31 @@ class DeerBot:
 
         floor_one.run()
 
+        print("Étage 1 terminé.")
+
     def do_floor_two(self):
         floor_two = FloorTwo()
         floor_two.enter_level()
 
         floor_two.run()
 
+        print("Étage 2 terminé.")
+
+    def do_floor_three(self):
+        floor_three = FloorThree()
+        floor_three.enter_level()
+
+        floor_three.run()
+
+        print("Étage 3 terminé.")
+
     def run(self):
-        # counter = 1
+        counter = 1
         while True:
-            # print(f"Run #{counter}")
+            print(f"\nRun #{counter}\n")
             self.define_team()
             self.do_floor_one()
-            # self.do_floor_two()
+            self.do_floor_two()
+            self.do_floor_three()
             self.reset()
-            # counter += 1
+            counter += 1
