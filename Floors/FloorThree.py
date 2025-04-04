@@ -64,11 +64,23 @@ class TurnPlayer:
     def step_4(hero_cards, last_color, turn):
         cards_to_play = []
 
-        # Specific case for step 4, need to play blue attack/malus/ultimate skill, then red, then green and NEED to play a counter card at the end
-        cards_to_play = TurnPlayer._finish_him(hero_cards, last_color, turn)
-        if len(cards_to_play) < 4:
-            raise Exception("Finish him failed, restarting floor 3")
-        cards_to_play = TurnPlayer._get_index_array(cards_to_play)
+        if turn == 1:
+            # Specific case for step 4, need to play blue attack/malus/ultimate skill, then red, then green and NEED to play a counter card at the end
+            cards_to_play = TurnPlayer._finish_him(hero_cards, last_color, turn)
+            if len(cards_to_play) < 4:
+                raise Exception("Finish him failed, restarting floor 3")
+            cards_to_play = TurnPlayer._get_index_array(cards_to_play)
+        else:
+            if TurnPlayer._are_there_three_colors_to_play(hero_cards):
+                cards_to_play = TurnPlayer._play_priority_cards(hero_cards, check_color=True)
+                cards_to_play = TurnPlayer._respect_color_cycle(cards_to_play, last_color)
+                cards_to_play = TurnPlayer._complete_color_cycle(hero_cards, cards_to_play, 4, turn)
+                last_color = cards_to_play[-1].color
+            else:
+                cards_to_play = TurnPlayer._play_last_four_cards()
+                last_color = None
+            cards_to_play = TurnPlayer._get_index_array(cards_to_play)
+            cards_to_play = TurnPlayer._ensure_four_cards_are_played(cards_to_play)
 
         return cards_to_play, last_color
 
