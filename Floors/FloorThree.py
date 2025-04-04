@@ -84,22 +84,18 @@ class TurnPlayer:
         if len(cards_to_play) < 4:
             next_color = COLOR_CYCLE[(COLOR_CYCLE.index(cards_to_play[-1].color) + 1) % 3]
 
-            if turn % 2 == 1:
-                for _, cards in hero_cards.items():
-                    for card in cards:
-                        if (card.color == next_color and card not in cards_to_play) or (card.type == CardType.COUNTER and TurnPlayer._have_more_than_one_counter(hero_cards)):
-                            cards_to_play.append(card)
-                            break
-                    if len(cards_to_play) == 4:
+            for _, cards in hero_cards.items():
+                cond = None
+                for card in cards:
+                    if turn % 2 == 1:
+                        cond = (card.color == next_color)
+                    else:
+                        cond = (card.color != next_color)
+                    if (cond and card not in cards_to_play) or (card.type == CardType.COUNTER and TurnPlayer._have_more_than_one_counter(hero_cards)):
+                        cards_to_play.append(card)
                         break
-            else:
-                for _, cards in hero_cards.items():
-                    for card in cards:
-                        if (card.color != next_color and card not in cards_to_play) or (card.type == CardType.COUNTER and TurnPlayer._have_more_than_one_counter(hero_cards)):
-                            cards_to_play.append(card)
-                            break
-                    if len(cards_to_play) == 4:
-                        break
+                if len(cards_to_play) == 4:
+                    break
 
         return cards_to_play
 
