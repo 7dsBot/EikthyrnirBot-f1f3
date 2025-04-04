@@ -4,7 +4,7 @@ from Hand.Hand import Hand
 from WindowCapture import WindowCapture
 from WindowClicker import WindowClicker
 
-from time import sleep
+from time import sleep, time
 
 class Floor:
     def __init__(self):
@@ -22,6 +22,15 @@ class Floor:
 
         # print(f"Entrée dans l'étage {level_nb}.")
         self.wclick.click(*LAUNCH, 30)
+
+    def exit_run(self):
+        self.wclick.click(960, 540, 3, left=False)
+        self.wclick.click(960, 640, 3)
+        self.wclick.click(1050, 640, 10)
+
+    def restart_floor(self):
+        self.exit_run()
+        self.enter_level()
 
     def check_step(self):
         PHASE_1 = (5, 101, 34)
@@ -83,8 +92,13 @@ class Floor:
         last_color = None
         step, last_step = 0, 0
         turn = 1
+        start_time = time()  # Start the timer
+        cooldown = 480
 
         while True:
+            if time() - start_time > cooldown:
+                raise Exception("Cooldown exceeded.")
+
             step = self.check_step()
             if step != last_step:
                 last_color = None

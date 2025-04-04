@@ -3,6 +3,8 @@ from Floors.Floor import Floor
 
 from constants import COLOR_CYCLE
 
+from sys import exit
+
 class TurnPlayer:
     @staticmethod
     def get_cards_to_play(hero_cards, last_color, step):
@@ -204,6 +206,9 @@ class FloorOne(Floor):
     def enter_level(self):
         super().enter_level((970, 775), 1)
 
+    def restart_floor(self):
+        super().restart_floor()
+
     def check_step(self):
         return super().check_step()
 
@@ -220,4 +225,15 @@ class FloorOne(Floor):
         return super().play(step, cards, last_color, turn)
 
     def run(self):
-        super().run()
+        while True:
+            try:
+                super().run()
+                break
+            except Exception as e:
+                if "Cooldown exceeded." in str(e):
+                    print("Cooldown exceeded, restarting floor 1")
+                    self.restart_floor()
+                    continue
+                else:
+                    print(f"An error occurred: {e}")
+                    exit(1)
