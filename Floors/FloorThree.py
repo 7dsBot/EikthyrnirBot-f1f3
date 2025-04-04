@@ -152,7 +152,10 @@ class TurnPlayer:
         if len(cards_to_play) < 4:
             cards_left = [i for i in range(1, 8)]
             for index in cards_to_play:
-                cards_left.remove(index)
+                try:
+                    cards_left.remove(index)
+                except ValueError:
+                    pass
             cards_to_play.append(cards_left[0])
 
         return cards_to_play
