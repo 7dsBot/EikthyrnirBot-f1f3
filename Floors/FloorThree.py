@@ -66,6 +66,8 @@ class TurnPlayer:
 
         # Specific case for step 4, need to play blue attack/malus/ultimate skill, then red, then green and NEED to play a counter card at the end
         cards_to_play = TurnPlayer._finish_him(hero_cards, last_color, turn)
+        if len(cards_to_play) < 4:
+            raise Exception("Finish him failed, restarting floor 3")
         cards_to_play = TurnPlayer._get_index_array(cards_to_play)
 
         return cards_to_play, last_color

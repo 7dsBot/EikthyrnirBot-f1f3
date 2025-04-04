@@ -40,13 +40,29 @@ class DeerBot:
 
         print("Étage 2 terminé.")
 
+    def exit_run(self):
+        self.wclick.click(960, 540, 3, left=False)
+        self.wclick.click(960, 640, 3)
+        self.wclick.click(1050, 640, 10)
+
     def do_floor_three(self):
-        floor_three = FloorThree()
-        floor_three.enter_level()
+        while True:
+            try:
+                floor_three = FloorThree()
+                floor_three.enter_level()
 
-        floor_three.run()
+                floor_three.run()
 
-        print("Étage 3 terminé.")
+                print("Étage 3 terminé.")
+                break  # Exit the loop if successful
+            except Exception as e:
+                if "Finish him failed, restarting floor 3" in str(e):
+                    print("Finish him failed, restarting floor 3")
+                    self.exit_run()
+                    continue
+                else:
+                    print(f"An error occurred: {e}")
+                    break
 
     def run(self):
         counter = 1

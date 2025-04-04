@@ -136,10 +136,15 @@ class WindowClickerApi:
         im1 = pyautogui.screenshot(region=region)
         im1.save(save_path)
 
-    def click(self, x, y):
+    def click(self, x, y, left=True):
+        events = ()
+        if left:
+            events = (win32con.MOUSEEVENTF_LEFTDOWN, win32con.MOUSEEVENTF_LEFTUP)
+        else:
+            events = (win32con.MOUSEEVENTF_RIGHTDOWN, win32con.MOUSEEVENTF_RIGHTUP)
         win32api.SetCursorPos((x, y))
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+        win32api.mouse_event(events[0], 0, 0)
         sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+        win32api.mouse_event(events[1], 0, 0)
         sleep(0.1)
         win32api.SetCursorPos(((self.offset_x - 10), y))
