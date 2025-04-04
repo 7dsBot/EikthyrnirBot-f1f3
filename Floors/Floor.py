@@ -36,7 +36,7 @@ class Floor:
             if self.wcap.check_pixel_color(115, 70, phase, 10):
                 return i + 1
 
-        sleep(5)
+        sleep(10)
         if self.wcap.check_pixel_color(1000, 1000, END, 10):
             return 69
 
