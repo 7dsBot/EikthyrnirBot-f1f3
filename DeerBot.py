@@ -64,8 +64,26 @@ class DeerBot:
                     print(f"An error occurred: {e}")
                     break
 
-    def run(self):
+    def run(self, *args):
+        diffStart = 0
+        if len(args) > 0:
+            diffStart = int(args[0])
+            if diffStart < 1 or diffStart > 3:
+                print("Invalid difficulty level. Please enter a number between 1 and 3.")
+                return
+
         counter = 1
+
+        if diffStart == 3:
+            print("Starting at floor 3")
+            self.do_floor_three()
+            self.reset()
+        elif diffStart == 2:
+            print("Starting at floor 2")
+            self.do_floor_two()
+            self.do_floor_three()
+            self.reset()
+
         while True:
             print(f"\nRun #{counter}\n")
             self.define_team()
