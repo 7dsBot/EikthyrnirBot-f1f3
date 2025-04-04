@@ -26,7 +26,7 @@ class TurnPlayer:
 
     @staticmethod
     def step_2(hero_cards, last_color):
-        cards_to_play = [2, 3, 1, 4]
+        cards_to_play = [7, 6, 8, 5]
 
         return cards_to_play, last_color
 

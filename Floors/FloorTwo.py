@@ -29,7 +29,7 @@ class TurnPlayer:
         cards_to_play = []
 
         if turn == 2:
-            cards_to_play = [2, 3, 1, 4]
+            cards_to_play = [7, 6, 8, 5]
             last_color = "red"
             return cards_to_play, last_color
 
